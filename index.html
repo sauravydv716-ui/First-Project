@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FixIt Desk – Facility Issue Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* -------------------------
+       GLOBAL STYLES
+    -------------------------- */
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #1e293b, #020617);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --accent-strong: #0ea5e9;
+      --danger: #fb7185;
+      --warning: #facc15;
+      --success: #4ade80;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(148, 163, 184, 0.25);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --transition-fast: 150ms ease-out;
+      --transition-med: 220ms ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 20px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* -------------------------
+       HEADER
+    -------------------------- */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(
+          135deg,
+          rgba(56, 189, 248, 0.16),
+          rgba(59, 130, 246, 0)
+        ),
+        rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #f9fafb, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #0f172a;
+      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.45);
+    }
+
+    .brand-text-main {
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .brand-text-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--accent-soft);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--accent-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      background: radial-gradient(circle at top left, #22d3ee, #2563eb);
+      color: #0b1120;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.9);
+      transition: transform var(--transition-fast),
+        box-shadow var(--transition-fast), filter var(--transition-fast);
+      transform-origin: center;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px) scale(1.01);
+      filter: brightness(1.02);
+      box-shadow: 0 18px 40px rgba(59, 130, 246, 1);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0px) scale(0.99);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.8);
+    }
+
+    .icon-plus {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    /* -------------------------
+       MAIN LAYOUT
+    -------------------------- */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(420px, 1.5fr) minmax(
+          260px,
+          320px
+        );
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    /* -------------------------
+       LEFT PANEL (SUMMARY + FILTERS)
+    -------------------------- */
+    .panel {
+      border-radius: var(--radius-xl);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(18px);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .summary-card {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), rgba(15, 23, 42, 0.9));
+      padding: 10px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .summary-value {
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    .summary-chip {
+      align-self: flex-start;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+    }
+
+    .summary-pill-accent {
+      border-color: rgba(45, 212, 191, 0.6);
+      color: #a5f3fc;
+    }
+
+    .summary-bg-orb {
+      position: absolute;
+      right: -22px;
+      top: -18px;
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.36), rgba(15, 23, 42, 0));
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    /* Filters */
+    .filters {
+      margin-top: 4px;
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      border: 1px dashed rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.9));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filters-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .select,
+    .input {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      padding: 6px 10px;
+      font-size: 12px;
+      outline: none;
+      min-width: 0;
+      flex: 1 1 110px;
+    }
+
+    .select:focus,
+    .input:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast),
+        border-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .tag.active {
+      border-color: var(--accent-strong);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+      transform: translateY(-1px);
+    }
+
+    /* -------------------------
+       MIDDLE PANEL – KANBAN
+    -------------------------- */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      height: 100%;
+      min-height: 420px;
+    }
+
+    .column {
+      border-radius: var(--radius-xl);
+      padding: 10px 10px 12px;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+    }
+
+    .column-header span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .column-badge {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+    }
+
+    .column-badge.todo {
+      border-color: var(--accent-strong);
+      color: #bae6fd;
+    }
+
+    .column-badge.progress {
+      border-color: var(--warning);
+      color: #fef9c3;
+    }
+
+    .column-badge.done {
+      border-color: var(--success);
+      color: #bbf7d0;
+    }
+
+    .issue-list {
+      margin-top: 4px;
+      padding-right: 2px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+      flex: 1 1 auto;
+    }
+
+    .issue-list::-webkit-scrollbar {
+      width: 5px;
+    }
+    .issue-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.7);
+      border-radius: 999px;
+    }
+
+    .issue-card {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      padding: 8px 9px;
+      margin-bottom: 8px;
+      cursor: grab;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast),
+        background var(--transition-fast);
+      position: relative;
+    }
+
+    .issue-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.96);
+      border-color: rgba(56, 189, 248, 0.7);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+    }
+
+    .issue-priority-indicator {
+      position: absolute;
+      top: 8px;
+      right: 9px;
+      width: 6px;
+      height: 28px;
+      border-radius: 999px;
+      opacity: 0.9;
+    }
+
+    .priority-high {
+      background: linear-gradient(to bottom, #fb7185, #f97316);
+    }
+
+    .priority-medium {
+      background: linear-gradient(to bottom, #facc15, #f97316);
+    }
+
+    .priority-low {
+      background: linear-gradient(to bottom, #4ade80, #22c55e);
+    }
+
+    .issue-title {
+      font-size: 13px;
+      font-weight: 500;
+      padding-right: 14px;
+    }
+
+    .issue-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .issue-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .issue-tag {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    .issue-tag-dept {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: #bae6fd;
+    }
+
+    .issue-footer {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .issue-chip {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .drop-target-highlight {
+      outline: 1px dashed rgba(56, 189, 248, 0.8);
+      outline-offset: -4px;
+      background: radial-gradient(circle at center, rgba(56, 189, 248, 0.08), transparent);
+    }
+
+    /* -------------------------
+       RIGHT PANEL – ANALYTICS
+    -------------------------- */
+    .analytics {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .analytics-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bar-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(to right, #22d3ee, #2563eb);
+      width: 0%;
+      transition: width 260ms ease-out;
+    }
+
+    .badge-soft {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 7px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .list-item span:first-child {
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* -------------------------
+       MODAL
+    -------------------------- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.75);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.95);
+      padding: 16px 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: popIn 160ms ease-out;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      padding: 0;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: rgba(30, 64, 175, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .field-required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+
+    .textarea {
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      padding: 7px 10px;
+      font-size: 12px;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+    }
+
+    .textarea:focus {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      padding: 8px 13px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(30, 64, 175, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .error-text {
+      font-size: 11px;
+      color: var(--danger);
+      margin-top: 4px;
+    }
+
+    /* -------------------------
+       RESPONSIVE
+    -------------------------- */
+    @media (max-width: 1080px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "left right"
+          "middle middle";
+      }
+      .panel-left {
+        grid-area: left;
+      }
+      .panel-right {
+        grid-area: right;
+      }
+      .panel-middle {
+        grid-area: middle;
+      }
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 12px;
+      }
+
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .main-grid {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+          "left"
+          "middle"
+          "right";
+      }
+
+      .board {
+        min-height: 360px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app-header {
+        padding: 12px 14px;
+      }
+      .brand-text-sub {
+        display: none;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .board {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .column {
+        min-height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">F</div>
+        <div>
+          <div class="brand-text-main">FixIt Desk</div>
+          <div class="brand-text-sub">
+            Smart facility issue manager – frontend prototype
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          LIVE PREVIEW · FRONTEND ONLY
+        </div>
+        <button class="btn-primary" id="openModalBtn">
+          <span class="icon-plus">＋</span>
+          New Issue
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN GRID -->
+    <main class="main-grid">
+      <!-- LEFT PANEL -->
+      <section class="panel panel-left">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Today’s Snapshot</div>
+            <div class="panel-subtitle">
+              Real-time overview of facility tickets
+            </div>
+          </div>
+          <span class="badge-soft" id="lastUpdatedLabel">Updated just now</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-bg-orb"></div>
+            <div class="summary-label">Open Issues</div>
+            <div class="summary-value" id="openCount">0</div>
+            <div class="summary-chip summary-pill-accent" id="openLabel">
+              Healthy load
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-bg-orb"></div>
+            <div class="summary-label">Resolved Today</div>
+            <div class="summary-value" id="resolvedCount">0</div>
+            <div class="summary-chip" id="resolvedLabel">
+              Keep momentum
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-bg-orb"></div>
+            <div class="summary-label">Avg. Priority</div>
+            <div class="summary-value" id="avgPriority">–</div>
+            <div class="summary-chip" id="avgPriorityLabel">
+              Based on all open tasks
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-bg-orb"></div>
+            <div class="summary-label">Most Active Dept.</div>
+            <div class="summary-value" id="topDept">–</div>
+            <div class="summary-chip" id="topDeptLabel">
+              Calculated from current tickets
+            </div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="filters-label">Quick filters</div>
+          <div class="filters-row">
+            <select class="select" id="filterDepartment">
+              <option value="all">Department · All</option>
+              <option value="Electrical">Electrical</option>
+              <option value="HVAC">HVAC</option>
+              <option value="Housekeeping">Housekeeping</option>
+              <option value="IT">IT</option>
+            </select>
+            <select class="select" id="filterPriority">
+              <option value="all">Priority · All</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="filters-row">
+            <input
+              type="text"
+              class="input"
+              id="searchInput"
+              placeholder="Search by title / location / raised by..."
+            />
+          </div>
+          <div class="tag-row">
+            <button class="tag active" data-status-filter="all">
+              All
+            </button>
+            <button class="tag" data-status-filter="To Do">
+              To Do
+            </button>
+            <button class="tag" data-status-filter="In Progress">
+              In Progress
+            </button>
+            <button class="tag" data-status-filter="Done">
+              Done
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MIDDLE PANEL – BOARD -->
+      <section class="panel panel-middle">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Issue Board</div>
+            <div class="panel-subtitle">
+              Drag cards between columns to update status
+            </div>
+          </div>
+          <span class="badge-soft" id="issueCountLabel">0 issues</span>
+        </div>
+
+        <div class="board">
+          <!-- TO DO -->
+          <div class="column" data-status="To Do">
+            <div class="column-header">
+              <span>To Do</span>
+              <span class="column-badge todo" id="todoCount">0</span>
+            </div>
+            <div class="issue-list" data-list="To Do"></div>
+          </div>
+
+          <!-- IN PROGRESS -->
+          <div class="column" data-status="In Progress">
+            <div class="column-header">
+              <span>In Progress</span>
+              <span class="column-badge progress" id="inProgressCount">0</span>
+            </div>
+            <div class="issue-list" data-list="In Progress"></div>
+          </div>
+
+          <!-- DONE -->
+          <div class="column" data-status="Done">
+            <div class="column-header">
+              <span>Done</span>
+              <span class="column-badge done" id="doneCount">0</span>
+            </div>
+            <div class="issue-list" data-list="Done"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL – ANALYTICS -->
+      <section class="panel panel-right analytics">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Analytics</div>
+            <div class="panel-subtitle">
+              Lightweight insights for facility managers
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-row">
+          <div class="bar-group">
+            <div class="bar-label-row">
+              <span>Status distribution</span>
+              <span id="statusDistributionLabel">–</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="statusBar"></div>
+            </div>
+          </div>
+
+          <div class="bar-group">
+            <div class="bar-label-row">
+              <span>High priority share</span>
+              <span id="highPriorityLabel">–</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="priorityBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-row">
+          <div class="bar-label-row">
+            <span>Departments by load</span>
+            <span class="badge-soft">Top 3 · Open issues</span>
+          </div>
+          <div class="list" id="deptList"></div>
+        </div>
+
+        <div class="analytics-row">
+          <div class="bar-label-row">
+            <span>Insights</span>
+            <span class="badge-soft" id="insightsLabel">Auto-generated</span>
+          </div>
+          <div class="list" id="insightsList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Log new issue</div>
+          <div class="panel-subtitle">
+            Capture what’s broken so the right team can fix it
+          </div>
+        </div>
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="issueForm">
+        <div class="modal-body">
+          <div class="field">
+            <label class="field-label">
+              Title <span class="field-required">*</span>
+            </label>
+            <input
+              type="text"
+              class="input"
+              name="title"
+              placeholder="Ceiling fan not working in Cabin 302"
+              required
+            />
+          </div>
+          <div class="field">
+            <label class="field-label">Location</label>
+            <input
+              type="text"
+              class="input"
+              name="location"
+              placeholder="Cabin / Floor / Meeting room"
+            />
+          </div>
+          <div class="field">
+            <label class="field-label">
+              Department <span class="field-required">*</span>
+            </label>
+            <select class="select" name="department" required>
+              <option value="">Select department</option>
+              <option value="Electrical">Electrical</option>
+              <option value="HVAC">HVAC</option>
+              <option value="Housekeeping">Housekeeping</option>
+              <option value="IT">IT</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">
+              Priority <span class="field-required">*</span>
+            </label>
+            <select class="select" name="priority" required>
+              <option value="">Select priority</option>
+              <option value="High">High – critical</option>
+              <option value="Medium">Medium – important</option>
+              <option value="Low">Low – minor</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Raised by</label>
+            <input
+              type="text"
+              class="input"
+              name="raisedBy"
+              placeholder="Employee name / team"
+            />
+          </div>
+          <div class="field">
+            <label class="field-label">Notes</label>
+            <textarea
+              class="textarea"
+              name="notes"
+              placeholder="Any additional details that help the technician..."
+            ></textarea>
+          </div>
+          <div id="formError" class="error-text" style="display:none;">
+            Please fill in all required fields.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" id="resetFormBtn">
+            Clear
+          </button>
+          <button type="submit" class="btn-primary">
+            <span class="icon-plus">＋</span>
+            Add issue
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ------------------------------------
+    // DATA & STORAGE
+    // ------------------------------------
+    const STORAGE_KEY = "fixitDeskIssues_v1";
+
+    /** Default seed data (only used on very first load) */
+    const seedIssues = [
+      {
+        id: "i1",
+        title: "Ceiling fan not working – Cabin 302",
+        location: "Cabin 302 · 3rd Floor",
+        department: "Electrical",
+        priority: "High",
+        status: "To Do",
+        createdAt: Date.now() - 1000 * 60 * 60 * 5,
+        resolvedAt: null,
+        raisedBy: "Finance team",
+        notes: "Fan makes humming noise and stops after 2–3 minutes."
+      },
+      {
+        id: "i2",
+        title: "AC cooling very low in Meeting Room Aurora",
+        location: "Aurora · 2nd Floor",
+        department: "HVAC",
+        priority: "Medium",
+        status: "In Progress",
+        createdAt: Date.now() - 1000 * 60 * 60 * 22,
+        resolvedAt: null,
+        raisedBy: "HR",
+        notes: "Scheduled town hall at 4 PM, needs fix before that."
+      },
+      {
+        id: "i3",
+        title: "Projector not detecting HDMI input",
+        location: "Orion Conference Room",
+        department: "IT",
+        priority: "High",
+        status: "In Progress",
+        createdAt: Date.now() - 1000 * 60 * 60 * 2,
+        resolvedAt: null,
+        raisedBy: "L&D Team",
+        notes: "Tried with two different laptops."
+      },
+      {
+        id: "i4",
+        title: "Wet patch near pantry sink",
+        location: "Pantry · Ground Floor",
+        department: "Housekeeping",
+        priority: "Low",
+        status: "Done",
+        createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
+        resolvedAt: Date.now() - 1000 * 60 * 60 * 24,
+        raisedBy: "Admin",
+        notes: "Might be minor leakage, monitor for 24 hrs."
+      },
+      {
+        id: "i5",
+        title: "Loose wall socket near workstation cluster B",
+        location: "Cluster B · 1st Floor",
+        department: "Electrical",
+        priority: "Medium",
+        status: "To Do",
+        createdAt: Date.now() - 1000 * 60 * 60 * 7,
+        resolvedAt: null,
+        raisedBy: "Employee support",
+        notes: "Potential safety risk, schedule fix this week."
+      },
+      {
+        id: "i6",
+        title: "Glass door hinge noisy at main entrance",
+        location: "Reception lobby",
+        department: "Housekeeping",
+        priority: "Low",
+        status: "Done",
+        createdAt: Date.now() - 1000 * 60 * 60 * 30,
+        resolvedAt: Date.now() - 1000 * 60 * 60 * 6,
+        raisedBy: "Security",
+        notes: "Lubrication applied, monitor noise."
+      }
+    ];
+
+    function loadIssues() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(seedIssues));
+        return seedIssues;
+      }
+      try {
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return seedIssues;
+        return parsed;
+      } catch {
+        return seedIssues;
+      }
+    }
+
+    function saveIssues(issues) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(issues));
+    }
+
+    let issues = loadIssues();
+    let currentStatusFilter = "all";
+
+    // ------------------------------------
+    // DOM ELEMENTS
+    // ------------------------------------
+    const issueLists = {
+      "To Do": document.querySelector('.issue-list[data-list="To Do"]'),
+      "In Progress": document.querySelector('.issue-list[data-list="In Progress"]'),
+      "Done": document.querySelector('.issue-list[data-list="Done"]'),
+    };
+
+    const todoCountEl = document.getElementById("todoCount");
+    const inProgressCountEl = document.getElementById("inProgressCount");
+    const doneCountEl = document.getElementById("doneCount");
+    const issueCountLabel = document.getElementById("issueCountLabel");
+
+    const openCountEl = document.getElementById("openCount");
+    const resolvedCountEl = document.getElementById("resolvedCount");
+    const avgPriorityEl = document.getElementById("avgPriority");
+    const topDeptEl = document.getElementById("topDept");
+
+    const openLabelEl = document.getElementById("openLabel");
+    const resolvedLabelEl = document.getElementById("resolvedLabel");
+    const avgPriorityLabelEl = document.getElementById("avgPriorityLabel");
+    const topDeptLabelEl = document.getElementById("topDeptLabel");
+
+    const statusBarEl = document.getElementById("statusBar");
+    const priorityBarEl = document.getElementById("priorityBar");
+    const statusDistributionLabel = document.getElementById("statusDistributionLabel");
+    const highPriorityLabel = document.getElementById("highPriorityLabel");
+    const deptListEl = document.getElementById("deptList");
+    const insightsLabelEl = document.getElementById("insightsLabel");
+    const insightsListEl = document.getElementById("insightsList");
+    const lastUpdatedLabelEl = document.getElementById("lastUpdatedLabel");
+
+    // Filters
+    const filterDepartmentEl = document.getElementById("filterDepartment");
+    const filterPriorityEl = document.getElementById("filterPriority");
+    const searchInputEl = document.getElementById("searchInput");
+    const statusTags = document.querySelectorAll("[data-status-filter]");
+
+    // Modal
+    const modalBackdropEl = document.getElementById("modalBackdrop");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const issueForm = document.getElementById("issueForm");
+    const resetFormBtn = document.getElementById("resetFormBtn");
+    const formErrorEl = document.getElementById("formError");
+
+    // ------------------------------------
+    // RENDERING
+    // ------------------------------------
+    function applyFilters(issue) {
+      const departmentFilter = filterDepartmentEl.value;
+      const priorityFilter = filterPriorityEl.value;
+      const searchText = searchInputEl.value.trim().toLowerCase();
+      const statusFilter = currentStatusFilter;
+
+      if (departmentFilter !== "all" && issue.department !== departmentFilter) {
+        return false;
+      }
+      if (priorityFilter !== "all" && issue.priority !== priorityFilter) {
+        return false;
+      }
+      if (statusFilter !== "all" && issue.status !== statusFilter) {
+        return false;
+      }
+
+      if (searchText) {
+        const haystack = [
+          issue.title,
+          issue.location || "",
+          issue.raisedBy || "",
+          issue.department,
+          issue.priority,
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(searchText)) return false;
+      }
+
+      return true;
+    }
+
+    function clearIssueLists() {
+      Object.values(issueLists).forEach((el) => {
+        el.innerHTML = "";
+      });
+    }
+
+    function createIssueCard(issue) {
+      const card = document.createElement("article");
+      card.className = "issue-card";
+      card.draggable = true;
+      card.dataset.id = issue.id;
+
+      const priorityClass =
+        issue.priority === "High"
+          ? "priority-high"
+          : issue.priority === "Medium"
+          ? "priority-medium"
+          : "priority-low";
+
+      card.innerHTML = `
+        <div class="issue-priority-indicator ${priorityClass}"></div>
+        <div class="issue-title">${issue.title}</div>
+        <div class="issue-meta-row">
+          <div class="issue-tags">
+            <span class="issue-tag issue-tag-dept">${issue.department}</span>
+            ${
+              issue.location
+                ? `<span class="issue-tag">${issue.location}</span>`
+                : ""
+            }
+          </div>
+          <span class="issue-chip">Priority · ${issue.priority}</span>
+        </div>
+        <div class="issue-footer">
+          <span>${
+            issue.raisedBy ? `Raised by ${issue.raisedBy}` : "Raised via portal"
+          }</span>
+          <span>${formatRelativeTime(issue.createdAt)}</span>
+        </div>
+      `;
+
+      // Drag events
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", issue.id);
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+      });
+
+      return card;
+    }
+
+    function renderBoard() {
+      clearIssueLists();
+
+      const counts = {
+        "To Do": 0,
+        "In Progress": 0,
+        "Done": 0,
+      };
+
+      const filtered = issues.filter(applyFilters);
+
+      filtered.forEach((issue) => {
+        counts[issue.status]++;
+        const card = createIssueCard(issue);
+        issueLists[issue.status].appendChild(card);
+      });
+
+      todoCountEl.textContent = counts["To Do"];
+      inProgressCountEl.textContent = counts["In Progress"];
+      doneCountEl.textContent = counts["Done"];
+
+      issueCountLabel.textContent = `${filtered.length} issue${
+        filtered.length === 1 ? "" : "s"
+      }`;
+    }
+
+    function renderSummaryAnalytics() {
+      const openIssues = issues.filter(
+        (i) => i.status === "To Do" || i.status === "In Progress"
+      );
+      const resolvedIssues = issues.filter((i) => i.status === "Done");
+
+      openCountEl.textContent = openIssues.length;
+      resolvedCountEl.textContent = resolvedIssues.length;
+
+      // Open label
+      if (openIssues.length === 0) {
+        openLabelEl.textContent = "All clear – nice work!";
+      } else if (openIssues.length <= 3) {
+        openLabelEl.textContent = "Healthy load";
+      } else if (openIssues.length <= 6) {
+        openLabelEl.textContent = "Track closely";
+      } else {
+        openLabelEl.textContent = "At risk – needs attention";
+      }
+
+      // Resolved label (today-based)
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const resolvedToday = resolvedIssues.filter(
+        (i) => i.resolvedAt && i.resolvedAt >= startOfToday.getTime()
+      );
+      resolvedCountEl.textContent = resolvedToday.length;
+      if (resolvedToday.length === 0) {
+        resolvedLabelEl.textContent = "No closures yet today";
+      } else if (resolvedToday.length <= 2) {
+        resolvedLabelEl.textContent = "Steady progress";
+      } else {
+        resolvedLabelEl.textContent = "Strong closure rate";
+      }
+
+      // Average priority (map to numeric)
+      const priorityWeights = { High: 3, Medium: 2, Low: 1 };
+      if (openIssues.length > 0) {
+        const totalWeight = openIssues.reduce(
+          (sum, i) => sum + (priorityWeights[i.priority] || 0),
+          0
+        );
+        const avgWeight = totalWeight / openIssues.length;
+        let label = "Medium";
+        if (avgWeight >= 2.5) label = "High";
+        else if (avgWeight < 1.7) label = "Low";
+        avgPriorityEl.textContent = label;
+        avgPriorityLabelEl.textContent =
+          label === "High"
+            ? "Many critical issues – prioritize field visits"
+            : label === "Medium"
+            ? "Balanced mix – keep prioritizing smartly"
+            : "Mostly minor – room for preventive work";
+      } else {
+        avgPriorityEl.textContent = "–";
+        avgPriorityLabelEl.textContent = "No open issues to evaluate";
+      }
+
+      // Most active department
+      const deptCounts = issues.reduce((acc, i) => {
+        acc[i.department] = (acc[i.department] || 0) + 1;
+        return acc;
+      }, {});
+      const entries = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]);
+      if (entries.length > 0) {
+        const [dept, count] = entries[0];
+        topDeptEl.textContent = dept;
+        topDeptLabelEl.textContent = `${count} issue${
+          count === 1 ? "" : "s"
+        } currently logged`;
+      } else {
+        topDeptEl.textContent = "–";
+        topDeptLabelEl.textContent = "No department activity yet";
+      }
+    }
+
+    function renderRightAnalytics() {
+      const total = issues.length || 1;
+      const todo = issues.filter((i) => i.status === "To Do").length;
+      const inProgress = issues.filter(
+        (i) => i.status === "In Progress"
+      ).length;
+      const done = issues.filter((i) => i.status === "Done").length;
+      const completionRate = (done / total) * 100;
+
+      statusBarEl.style.width = `${completionRate.toFixed(0)}%`;
+      statusDistributionLabel.textContent = `${completionRate.toFixed(
+        0
+      )}% resolved`;
+
+      const highCount = issues.filter((i) => i.priority === "High").length;
+      const highShare = (highCount / total) * 100;
+      priorityBarEl.style.width = `${highShare.toFixed(0)}%`;
+      highPriorityLabel.textContent = `${highShare.toFixed(
+        0
+      )}% high priority`;
+
+      // Dept list (top 3 by open issues)
+      const openIssues = issues.filter(
+        (i) => i.status === "To Do" || i.status === "In Progress"
+      );
+      const deptOpenCounts = openIssues.reduce((acc, i) => {
+        acc[i.department] = (acc[i.department] || 0) + 1;
+        return acc;
+      }, {});
+      const deptEntries = Object.entries(deptOpenCounts).sort(
+        (a, b) => b[1] - a[1]
+      );
+      deptListEl.innerHTML = "";
+      if (deptEntries.length === 0) {
+        const li = document.createElement("div");
+        li.className = "list-item";
+        li.innerHTML = `<span>No active issues</span><span>–</span>`;
+        deptListEl.appendChild(li);
+      } else {
+        deptEntries.slice(0, 3).forEach(([dept, count]) => {
+          const li = document.createElement("div");
+          li.className = "list-item";
+          li.innerHTML = `
+            <span>${dept}</span>
+            <span>${count} open</span>
+          `;
+          deptListEl.appendChild(li);
+        });
+      }
+
+      // Insights
+      insightsListEl.innerHTML = "";
+      insightsLabelEl.textContent = "Generated from current board";
+      const insights = [];
+
+      if (completionRate >= 70) {
+        insights.push("Resolution rate is strong – consider closing older To Do items next.");
+      } else if (completionRate <= 30) {
+        insights.push(
+          "Low resolution rate – check if any tickets are blocked or missing approvals."
+        );
+      } else {
+        insights.push(
+          "Healthy mix of open and closed tickets – keep the momentum."
+        );
+      }
+
+      if (highShare >= 40) {
+        insights.push(
+          "High proportion of critical issues – align technicians on priority list."
+        );
+      } else if (highShare <= 10) {
+        insights.push(
+          "Few high priority tickets – good opportunity to focus on preventive maintenance."
+        );
+      }
+
+      const inProgressCount = inProgress;
+      if (inProgressCount >= 3) {
+        insights.push(
+          "Multiple items in progress – ensure no technician is overloaded."
+        );
+      }
+
+      if (insights.length === 0) {
+        insights.push("Add more tickets to see richer insights.");
+      }
+
+      insights.forEach((text) => {
+        const li = document.createElement("div");
+        li.className = "list-item";
+        li.innerHTML = `<span>${text}</span>`;
+        insightsListEl.appendChild(li);
+      });
+
+      lastUpdatedLabelEl.textContent = "Updated " + formatRelativeTime(Date.now());
+    }
+
+    function renderAll() {
+      renderBoard();
+      renderSummaryAnalytics();
+      renderRightAnalytics();
+    }
+
+    // ------------------------------------
+    // HELPERS
+    // ------------------------------------
+    function formatRelativeTime(timestamp) {
+      const diffMs = Date.now() - timestamp;
+      const diffSec = Math.round(diffMs / 1000);
+      if (diffSec < 60) return "Just now";
+      const diffMin = Math.round(diffSec / 60);
+      if (diffMin < 60) return `${diffMin} min ago`;
+      const diffHrs = Math.round(diffMin / 60);
+      if (diffHrs < 24) return `${diffHrs} hr${diffHrs === 1 ? "" : "s"} ago`;
+      const diffDays = Math.round(diffHrs / 24);
+      if (diffDays === 1) return "Yesterday";
+      return `${diffDays} days ago`;
+    }
+
+    function generateId() {
+      return (
+        "i" +
+        Math.random().toString(36).slice(2, 6) +
+        Date.now().toString(36).slice(-4)
+      );
+    }
+
+    // ------------------------------------
+    // MODAL HANDLERS
+    // ------------------------------------
+    function openModal() {
+      modalBackdropEl.classList.add("open");
+      formErrorEl.style.display = "none";
+      requestAnimationFrame(() => {
+        const firstField = issueForm.elements["title"];
+        if (firstField) firstField.focus();
+      });
+    }
+
+    function closeModal() {
+      modalBackdropEl.classList.remove("open");
+    }
+
+    openModalBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModal);
+
+    modalBackdropEl.addEventListener("click", (e) => {
+      if (e.target === modalBackdropEl) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalBackdropEl.classList.contains("open")) {
+        closeModal();
+      }
+    });
+
+    resetFormBtn.addEventListener("click", () => {
+      issueForm.reset();
+      formErrorEl.style.display = "none";
+    });
+
+    issueForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      formErrorEl.style.display = "none";
+
+      const formData = new FormData(issueForm);
+      const title = formData.get("title").trim();
+      const department = formData.get("department");
+      const priority = formData.get("priority");
+      const location = formData.get("location").trim();
+      const raisedBy = formData.get("raisedBy").trim();
+      const notes = formData.get("notes").trim();
+
+      if (!title || !department || !priority) {
+        formErrorEl.style.display = "block";
+        return;
+      }
+
+      const newIssue = {
+        id: generateId(),
+        title,
+        location: location || "",
+        department,
+        priority,
+        status: "To Do",
+        createdAt: Date.now(),
+        resolvedAt: null,
+        raisedBy: raisedBy || "",
+        notes: notes || "",
+      };
+
+      issues.unshift(newIssue);
+      saveIssues(issues);
+      issueForm.reset();
+      closeModal();
+      renderAll();
+    });
+
+    // ------------------------------------
+    // FILTER EVENTS
+    // ------------------------------------
+    [filterDepartmentEl, filterPriorityEl].forEach((el) =>
+      el.addEventListener("change", () => renderAll())
+    );
+
+    searchInputEl.addEventListener("input", () => renderAll());
+
+    statusTags.forEach((tag) => {
+      tag.addEventListener("click", () => {
+        statusTags.forEach((t) => t.classList.remove("active"));
+        tag.classList.add("active");
+        currentStatusFilter = tag.dataset.statusFilter;
+        renderAll();
+      });
+    });
+
+    // ------------------------------------
+    // DRAG & DROP – CHANGE STATUS
+    // ------------------------------------
+    const columns = document.querySelectorAll(".column");
+
+    columns.forEach((col) => {
+      col.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        col.classList.add("drop-target-highlight");
+      });
+
+      col.addEventListener("dragleave", () => {
+        col.classList.remove("drop-target-highlight");
+      });
+
+      col.addEventListener("drop", (e) => {
+        e.preventDefault();
+        col.classList.remove("drop-target-highlight");
+        const issueId = e.dataTransfer.getData("text/plain");
+        const status = col.dataset.status;
+        if (!issueId || !status) return;
+
+        const issue = issues.find((i) => i.id === issueId);
+        if (!issue) return;
+
+        if (issue.status === status) return;
+
+        issue.status = status;
+        if (status === "Done" && !issue.resolvedAt) {
+          issue.resolvedAt = Date.now();
+        } else if (status !== "Done") {
+          issue.resolvedAt = null;
+        }
+
+        saveIssues(issues);
+        renderAll();
+      });
+    });
+
+    // ------------------------------------
+    // INITIAL RENDER
+    // ------------------------------------
+    renderAll();
+  </script>
+</body>
+</html>
