@@ -30,7 +30,7 @@ It features a **drag-and-drop Kanban board**, smart **filters**, full **localSto
 ---
 
 ### **📊 Analytics Panel**
-<img src="assets/analytics.png" alt="Analytics Snapshot" width="800"/>
+<img width="447" height="471" alt="Image" src="https://github.com/user-attachments/assets/4c69218c-6188-420b-a71b-eb40eb77f69d" />
 
 ---
 
