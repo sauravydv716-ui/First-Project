@@ -20,7 +20,7 @@ It features a **drag-and-drop Kanban board**, smart **filters**, full **localSto
 > Replace the image links below with your actual screenshots.
 
 ### **✨ Dashboard – Overview**
-<img src="assets/dashboard.png" alt="Dashboard Snapshot" width="800"/>
+<img width="1674" height="775" alt="Image" src="https://github.com/user-attachments/assets/3c2dcf03-37e1-4b9c-a912-137f5f5e3396" />
 
 ---
 
