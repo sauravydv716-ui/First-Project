@@ -24,8 +24,7 @@ It features a **drag-and-drop Kanban board**, smart **filters**, full **localSto
 
 ---
 
-### **🎛️ Kanban Board – Drag & Drop**
-<img src="assets/kanban.png" alt="Kanban Snapshot" width="800"/>
+
 
 ---
 
@@ -35,7 +34,7 @@ It features a **drag-and-drop Kanban board**, smart **filters**, full **localSto
 ---
 
 ### **📝 New Issue Modal**
-<img src="assets/modal.png" alt="New Issue Modal" width="800"/>
+<img width="604" height="989" alt="Image" src="https://github.com/user-attachments/assets/d69af818-f59b-418a-b065-848cedf8e2b3" />
 
 ---
 
